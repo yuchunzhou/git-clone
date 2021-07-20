@@ -1,12 +1,12 @@
 use std::env;
 use std::io::Write;
 use std::process::Command;
-use std::thread::JoinHandle;
 use std::thread::spawn;
+use std::thread::JoinHandle;
 
 fn main() {
     if env::args().len() < 2 {
-        println!("usage: git-clone repo1 repo2 ...");
+        println!("Usage: git-clone repo1 repo2 ...");
         return;
     }
 
@@ -15,13 +15,17 @@ fn main() {
 
     for repo in repos {
         let thread = spawn(move || {
-            let output = Command::new("git").args(&["clone", &repo]).current_dir(env::current_dir().unwrap()).output().unwrap();
-            if output.status.success() == false {
+            let output = Command::new("git")
+                .args(&["clone", &repo])
+                .current_dir(env::current_dir().unwrap())
+                .output()
+                .unwrap();
+            if !output.status.success() {
                 std::io::stdout().write_all(&output.stdout).unwrap();
                 std::io::stderr().write_all(&output.stderr).unwrap();
                 return;
             }
-            println!("clone {} done!", repo);
+            println!("Clone {} done!", repo);
         });
         threads.push(thread);
     }
